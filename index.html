@@ -523,7 +523,7 @@ function getCats(){return type==='exp'?EXP_CATS:INC_CATS;}
 
 // ── Date ─────────────────────────────────────────────────
 function getDateObj(){const d=new Date();d.setDate(d.getDate()+dateOffset);return d;}
-function shiftDate(n){if(dateOffset+n>0)return;dateOffset+=n;updateDate();}
+function shiftDate(n){dateOffset+=n;updateDate();}
 function updateDate(){
 const d=getDateObj();
 const mm=String(d.getMonth()+1).padStart(2,'0');
@@ -569,7 +569,7 @@ for(let day=1;day<=last.getDate();day++){
 const d2=new Date(calYear,calMonth,day);
 const isToday=d2.toDateString()===today.toDateString();
 const isSel=d2.toDateString()===selD.toDateString();
-const isFut=d2>today;
+const isFut=false;
 let cls='cal-day';
 if(isSel)cls+=' sel-day';
 else if(isToday)cls+=' today';
