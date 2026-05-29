@@ -1,10 +1,13 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
+    // GitHub Pages serves this project site under /moneyspendingmanagement/.
+    // Dev server stays at root so localhost:5173 works unchanged.
+    base: command === 'build' ? '/moneyspendingmanagement/' : '/',
     plugins: [react()],
     server: {
       port: 5173,

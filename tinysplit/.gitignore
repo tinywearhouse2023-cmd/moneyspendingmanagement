@@ -11,3 +11,6 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# local screenshot helper (depends on container-only chromium)
+shot.mjs
