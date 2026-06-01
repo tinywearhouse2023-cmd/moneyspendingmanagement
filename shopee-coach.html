@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="蝦皮成長教練">
+<meta name="theme-color" content="#0e0e0e">
+<title>蝦皮成長教練 · TonyWearhouse</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+:root{
+  --bg:#0e0e0e;--s1:#181818;--s2:#222;--s3:#2a2a2a;
+  --ink:#f2f0ec;--ink2:#8a8680;--ink3:#3a3a3a;
+  --gold:#FFD93D;--gold2:#FFE97A;--gold-s:rgba(255,217,61,.10);
+  --green:#6BCB77;--green-s:rgba(107,203,119,.14);
+  --red:#FF6B6B;--red-s:rgba(255,107,107,.14);
+  --blue:#5BA3F5;--blue-s:rgba(91,163,245,.14);
+  --orange:#FFA94D;--orange-s:rgba(255,169,77,.14);
+  --border:rgba(255,255,255,.07);--r:18px;
+  --safe-top:env(safe-area-inset-top,12px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans TC','Manrope',sans-serif;background:var(--bg);color:var(--ink);min-height:100dvh;max-width:560px;margin:0 auto;padding-bottom:90px;}
+h1,h2,h3{font-weight:700;}
+.hd{padding:calc(var(--safe-top) + 16px) 20px 8px;}
+.hd .t{font-size:20px;font-weight:900;letter-spacing:.5px;}
+.hd .t .g{color:var(--gold);}
+.hd .s{font-size:12px;color:var(--ink2);margin-top:2px;}
+
+/* nav */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;display:flex;padding:8px 10px calc(8px + var(--safe-bot));gap:4px;background:rgba(14,14,14,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);z-index:100;}
+.nb{flex:1;padding:8px 0;text-align:center;font-size:10px;font-weight:600;color:var(--ink2);border-radius:12px;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.nb .ni{font-size:19px;display:block;margin-bottom:3px;}
+.nb.on{color:var(--gold);background:var(--gold-s);}
+
+.scr{display:none;padding:8px 16px 20px;}
+.scr.on{display:block;animation:fade .25s;}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.card .ct{font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:12px;display:flex;align-items:center;gap:6px;letter-spacing:.5px;}
+
+label.f{display:block;margin-bottom:12px;}
+label.f .lb{font-size:12px;color:var(--ink2);margin-bottom:5px;display:block;}
+label.f .lb .hint{color:var(--ink3);font-size:10px;}
+input,select{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--ink);font-size:16px;font-family:inherit;outline:none;transition:border .2s;}
+input:focus,select:focus{border-color:var(--gold);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+
+.btn{width:100%;background:var(--gold);color:#1a1500;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;letter-spacing:.5px;transition:transform .1s,opacity .2s;}
+.btn:active{transform:scale(.98);}
+.btn.ghost{background:var(--s2);color:var(--ink);border:1px solid var(--border);}
+.btn.sm{padding:9px;font-size:12px;border-radius:10px;}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.kpi{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:14px;}
+.kpi .k{font-size:11px;color:var(--ink2);margin-bottom:6px;}
+.kpi .v{font-size:24px;font-weight:800;line-height:1;}
+.kpi .v small{font-size:13px;font-weight:600;color:var(--ink2);}
+.kpi .d{font-size:11px;margin-top:6px;color:var(--ink2);}
+.up{color:var(--green);}.down{color:var(--red);}.neu{color:var(--ink2);}
+
+/* goal */
+.goal{background:linear-gradient(135deg,var(--s1),var(--s2));border:1px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px;}
+.goal .top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}
+.goal .big{font-size:34px;font-weight:900;}
+.goal .tgt{font-size:13px;color:var(--ink2);}
+.bar{height:12px;background:var(--s3);border-radius:8px;overflow:hidden;position:relative;}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.bar .mk{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--green);}
+.goal .ft{font-size:11px;color:var(--ink2);margin-top:8px;display:flex;justify-content:space-between;}
+
+/* advice */
+.adv{border-radius:16px;padding:14px 16px;margin-bottom:10px;border:1px solid;}
+.adv .at{font-size:14px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+.adv .ab{font-size:13px;line-height:1.6;color:var(--ink);opacity:.92;}
+.adv .ab b{color:var(--gold2);}
+.adv.crit{background:var(--red-s);border-color:rgba(255,107,107,.3);}
+.adv.warn{background:var(--orange-s);border-color:rgba(255,169,77,.3);}
+.adv.good{background:var(--green-s);border-color:rgba(107,203,119,.3);}
+.adv.info{background:var(--blue-s);border-color:rgba(91,163,245,.3);}
+.pill{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:auto;}
+.pill.crit{background:var(--red);color:#3a0000;}
+.pill.warn{background:var(--orange);color:#3a2400;}
+.pill.good{background:var(--green);color:#003a10;}
+.pill.info{background:var(--blue);color:#001f3a;}
+
+/* sop checklist */
+.sop h3{font-size:14px;margin:18px 0 8px;color:var(--gold);display:flex;align-items:center;gap:8px;}
+.ck{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);align-items:flex-start;cursor:pointer;}
+.ck:last-child{border:none;}
+.ck .box{width:20px;height:20px;border:2px solid var(--ink3);border-radius:6px;flex-shrink:0;margin-top:1px;transition:all .2s;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.ck.done .box{background:var(--green);border-color:var(--green);color:#003a10;}
+.ck .tx{font-size:13px;line-height:1.5;}
+.ck.done .tx{color:var(--ink2);text-decoration:line-through;}
+.ck .tx small{display:block;color:var(--ink2);font-size:11px;margin-top:2px;text-decoration:none;}
+
+.chartbox{position:relative;height:200px;margin-top:6px;}
+.empty{text-align:center;color:var(--ink2);font-size:13px;padding:40px 20px;line-height:1.7;}
+.log{font-size:12px;color:var(--ink2);}
+.logrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.logrow .dt{color:var(--ink);font-weight:600;}
+.tabsel{display:flex;gap:6px;margin-bottom:14px;background:var(--s1);padding:4px;border-radius:12px;}
+.tabsel .t{flex:1;text-align:center;font-size:12px;padding:8px;border-radius:9px;color:var(--ink2);cursor:pointer;font-weight:600;}
+.tabsel .t.on{background:var(--gold-s);color:var(--gold);}
+.small{font-size:11px;color:var(--ink2);line-height:1.6;}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1500;padding:11px 22px;border-radius:30px;font-weight:700;font-size:13px;opacity:0;pointer-events:none;transition:all .3s;z-index:200;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+.divline{height:1px;background:var(--border);margin:14px 0;}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="t"><span class="g">蝦皮</span>成長教練</div>
+  <div class="s">TonyWearhouse 小倉庫 · 目標 300-450 單/月</div>
+</div>
+
+<!-- ════ 今日記錄 ════ -->
+<section class="scr on" id="scr-log">
+  <div class="card">
+    <div class="ct">📝 今日數據(看蝦皮賣家中心後台填)</div>
+    <label class="f"><span class="lb">日期</span><input type="date" id="i-date"></label>
+    <div class="row2">
+      <label class="f"><span class="lb">當日總訂單數 <span class="hint">單</span></span><input type="number" id="i-orders" inputmode="numeric" placeholder="例 7"></label>
+      <label class="f"><span class="lb">當日營業額 <span class="hint">NT$ GMV</span></span><input type="number" id="i-rev" inputmode="numeric" placeholder="例 4200"></label>
+    </div>
+    <div class="divline"></div>
+    <div class="row2">
+      <label class="f"><span class="lb">廣告花費 <span class="hint">NT$</span></span><input type="number" id="i-adspend" inputmode="numeric" placeholder="例 1000"></label>
+      <label class="f"><span class="lb">廣告帶來訂單 <span class="hint">單</span></span><input type="number" id="i-adorders" inputmode="numeric" placeholder="例 5"></label>
+    </div>
+    <div class="row2">
+      <label class="f"><span class="lb">廣告銷售額 <span class="hint">NT$ 算ROAS</span></span><input type="number" id="i-adsales" inputmode="numeric" placeholder="例 3000"></label>
+      <label class="f"><span class="lb">商品瀏覽數 <span class="hint">流量</span></span><input type="number" id="i-visits" inputmode="numeric" placeholder="例 600"></label>
+    </div>
+    <div class="row2">
+      <label class="f"><span class="lb">廣告曝光 <span class="hint">選填</span></span><input type="number" id="i-imp" inputmode="numeric" placeholder="選填"></label>
+      <label class="f"><span class="lb">廣告點擊 <span class="hint">選填</span></span><input type="number" id="i-clk" inputmode="numeric" placeholder="選填"></label>
+    </div>
+    <button class="btn" onclick="saveDay()">儲存今日 · 立即健檢</button>
+    <p class="small" style="margin-top:10px">💡 至少填「總訂單數、營業額、廣告花費」三項就能算。其餘有填越多、健檢越準。</p>
+  </div>
+
+  <div class="card">
+    <div class="ct">📒 最近記錄 <span style="margin-left:auto"><button class="btn ghost sm" style="width:auto;padding:6px 12px" onclick="exportData()">匯出備份</button></span></div>
+    <div id="loglist" class="log"></div>
+  </div>
+</section>
+
+<!-- ════ 儀表板 ════ -->
+<section class="scr" id="scr-dash">
+  <div class="goal">
+    <div class="top">
+      <div><div class="big" id="g-cur">0</div><div class="tgt">本月累計訂單</div></div>
+      <div style="text-align:right"><div class="tgt">目標 <span id="g-min">300</span>-<span id="g-max">450</span> 單</div><div class="tgt" id="g-pace"></div></div>
+    </div>
+    <div class="bar"><i id="g-bar" style="width:0%"></i><span class="mk" id="g-mk" style="left:66%"></span></div>
+    <div class="ft"><span id="g-left"></span><span id="g-proj"></span></div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card">
+    <div class="ct">📈 每日訂單(廣告單 vs 自然單)</div>
+    <div class="chartbox"><canvas id="ch-orders"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ct">🎯 廣告每單成本 & ROAS 趨勢</div>
+    <div class="chartbox"><canvas id="ch-ads"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ct">🔁 轉換率 趨勢(進來的人有多少下單)</div>
+    <div class="chartbox"><canvas id="ch-cvr"></canvas></div>
+  </div>
+</section>
+
+<!-- ════ 智能健檢 ════ -->
+<section class="scr" id="scr-adv">
+  <div class="card" style="background:var(--gold-s);border-color:rgba(255,217,61,.25)">
+    <div class="ct" style="color:var(--gold)">🩺 教練健檢 · 依你最近 7 天數據</div>
+    <p class="small" id="adv-summary">先去「今日記錄」存幾天數據,我就會在這裡告訴你今天該做什麼。</p>
+  </div>
+  <div id="advlist"></div>
+</section>
+
+<!-- ════ 成長攻略 SOP ════ -->
+<section class="scr" id="scr-sop">
+  <div class="card sop" id="sopbox"></div>
+</section>
+
+<div class="bnav">
+  <div class="nb on" data-scr="log"><span class="ni">📝</span>記錄</div>
+  <div class="nb" data-scr="dash"><span class="ni">📊</span>儀表板</div>
+  <div class="nb" data-scr="adv"><span class="ni">🩺</span>健檢</div>
+  <div class="nb" data-scr="sop"><span class="ni">🚀</span>攻略</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ 資料層 ═══════════════
+const KEY='shopee_coach_v1', CKEY='shopee_coach_sop_v1';
+const cfg={goalMin:300,goalMax:450,margin:45}; // margin=毛利率%
+let DB=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function save(){localStorage.setItem(KEY,JSON.stringify(DB))}
+const $=id=>document.getElementById(id);
+const n=v=>{const x=parseFloat(v);return isNaN(x)?0:x};
+const fmt=v=>Math.round(v).toLocaleString();
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1800);}
+
+// ═══════════════ 導覽 ═══════════════
+document.querySelectorAll('.nb').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.scr').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');$('scr-'+b.dataset.scr).classList.add('on');
+  if(b.dataset.scr==='dash')renderDash();
+  if(b.dataset.scr==='adv')renderAdvice();
+});
+
+// ═══════════════ 儲存今日 ═══════════════
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function saveDay(){
+  const d=$('i-date').value||todayStr();
+  const rec={
+    date:d,
+    orders:n($('i-orders').value),
+    rev:n($('i-rev').value),
+    adspend:n($('i-adspend').value),
+    adorders:n($('i-adorders').value),
+    adsales:n($('i-adsales').value),
+    visits:n($('i-visits').value),
+    imp:n($('i-imp').value),
+    clk:n($('i-clk').value)
+  };
+  if(!rec.orders&&!rec.rev&&!rec.adspend){toast('至少填一個數字喔');return;}
+  const i=DB.findIndex(r=>r.date===d);
+  if(i>=0)DB[i]=rec;else DB.push(rec);
+  DB.sort((a,b)=>a.date<b.date?1:-1);
+  save();renderLog();
+  ['i-orders','i-rev','i-adspend','i-adorders','i-adsales','i-visits','i-imp','i-clk'].forEach(x=>$(x).value='');
+  toast('已儲存 ✓ 去看健檢');
+}
+
+function renderLog(){
+  const el=$('loglist');
+  if(!DB.length){el.innerHTML='<div class="empty">還沒有記錄<br>填上面的表單開始追蹤 👆</div>';return;}
+  el.innerHTML=DB.slice(0,14).map(r=>{
+    const cpo=r.adorders?r.adspend/r.adorders:(r.orders?r.adspend/r.orders:0);
+    const roas=r.adspend?(r.adsales/r.adspend):0;
+    return `<div class="logrow">
+      <span class="dt">${r.date.slice(5)}　${r.orders}單</span>
+      <span>NT$${fmt(r.rev)}　廣告$${fmt(r.adspend)}${cpo?'　每單$'+fmt(cpo):''}${roas?'　ROAS '+roas.toFixed(1):''}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ 統計 ═══════════════
+function thisMonth(){const m=todayStr().slice(0,7);return DB.filter(r=>r.date.slice(0,7)===m);}
+function lastN(k){return DB.slice(0,k);}
+function agg(rows){
+  const s={orders:0,rev:0,adspend:0,adorders:0,adsales:0,visits:0,imp:0,clk:0};
+  rows.forEach(r=>{for(const k in s)s[k]+=r[k]||0;});
+  s.natorders=Math.max(0,s.orders-s.adorders);
+  s.cpo=s.adorders?s.adspend/s.adorders:(s.orders?s.adspend/s.orders:0);
+  s.roas=s.adspend?s.adsales/s.adspend:0;
+  s.cvr=s.visits?s.orders/s.visits*100:0;
+  s.ctr=s.imp?s.clk/s.imp*100:0;
+  s.adcvr=s.clk?s.adorders/s.clk*100:0;
+  s.aov=s.orders?s.rev/s.orders:0;
+  s.natshare=s.orders?s.natorders/s.orders*100:0;
+  return s;
+}
+
+// ═══════════════ 儀表板 ═══════════════
+let charts={};
+function renderDash(){
+  const mo=agg(thisMonth());
+  const today=new Date();const dim=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+  const day=today.getDate();
+  const proj=day?Math.round(mo.orders/day*dim):0;
+  // goal bar
+  $('g-cur').textContent=mo.orders;
+  $('g-min').textContent=cfg.goalMin;$('g-max').textContent=cfg.goalMax;
+  const pct=Math.min(100,mo.orders/cfg.goalMax*100);
+  $('g-bar').style.width=pct+'%';
+  $('g-mk').style.left=(cfg.goalMin/cfg.goalMax*100)+'%';
+  $('g-left').textContent='距目標下緣還差 '+Math.max(0,cfg.goalMin-mo.orders)+' 單';
+  $('g-proj').textContent='本月預估 '+proj+' 單';
+  const need=Math.max(0,cfg.goalMin-mo.orders),daysLeft=dim-day;
+  $('g-pace').textContent=daysLeft>0?'剩'+daysLeft+'天 · 每天需'+ (Math.ceil(need/daysLeft)||0) +'單':'本月結算';
+  // kpis (last 7d)
+  const w=agg(lastN(7));
+  const tiles=[
+    {k:'廣告每單成本',v:'NT$'+fmt(w.cpo),d:cpoNote(w),cls:cpoCls(w)},
+    {k:'廣告 ROAS',v:w.roas.toFixed(1)+'x',d:w.roas>=tROAS()?'健康':'偏低',cls:w.roas>=tROAS()?'up':'down'},
+    {k:'整體轉換率',v:w.cvr.toFixed(1)+'%',d:w.cvr>=3?'不錯':(w.cvr>0?'待加強':'缺流量數'),cls:w.cvr>=3?'up':'down'},
+    {k:'自然單佔比',v:Math.round(w.natshare)+'%',d:w.natshare>=40?'健康':'太依賴廣告',cls:w.natshare>=40?'up':'down'},
+    {k:'客單價',v:'NT$'+fmt(w.aov),d:'近7天',cls:'neu'},
+    {k:'近7天訂單',v:w.orders+' 單',d:'平均'+(w.orders/7).toFixed(1)+'單/天',cls:'neu'},
+  ];
+  $('kpis').innerHTML=tiles.map(t=>`<div class="kpi"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="d ${t.cls}">${t.d}</div></div>`).join('');
+  drawCharts();
+}
+function tROAS(){return 100/cfg.margin;} // 損益兩平 ROAS = 1/毛利率
+function cpoNote(w){if(!w.aov||!w.cpo)return '近7天';const max=w.aov*cfg.margin/100;return w.cpo>max?'已超過毛利!':'毛利內 OK';}
+function cpoCls(w){if(!w.aov||!w.cpo)return 'neu';return w.cpo>w.aov*cfg.margin/100?'down':'up';}
+
+function drawCharts(){
+  const rows=[...DB].reverse().slice(-14);
+  const labels=rows.map(r=>r.date.slice(5));
+  const opt=(extra={})=>Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8a8680',font:{size:10},boxWidth:10}}},scales:{x:{ticks:{color:'#8a8680',font:{size:9}},grid:{display:false}},y:{ticks:{color:'#8a8680',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'}}}},extra);
+  mk('ch-orders',{type:'bar',data:{labels,datasets:[
+    {label:'廣告單',data:rows.map(r=>r.adorders),backgroundColor:'#5BA3F5',stack:'a'},
+    {label:'自然單',data:rows.map(r=>Math.max(0,r.orders-r.adorders)),backgroundColor:'#FFD93D',stack:'a'}
+  ]},options:opt({scales:{x:{stacked:true,ticks:{color:'#8a8680',font:{size:9}},grid:{display:false}},y:{stacked:true,ticks:{color:'#8a8680',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'}}}})});
+  mk('ch-ads',{type:'line',data:{labels,datasets:[
+    {label:'每單成本$',data:rows.map(r=>r.adorders?Math.round(r.adspend/r.adorders):null),borderColor:'#FF6B6B',backgroundColor:'transparent',tension:.3,yAxisID:'y'},
+    {label:'ROAS',data:rows.map(r=>r.adspend?+(r.adsales/r.adspend).toFixed(1):null),borderColor:'#6BCB77',backgroundColor:'transparent',tension:.3,yAxisID:'y1'}
+  ]},options:opt({scales:{x:{ticks:{color:'#8a8680',font:{size:9}},grid:{display:false}},y:{position:'left',ticks:{color:'#FF6B6B',font:{size:9}},grid:{color:'rgba(255,255,255,.05)'}},y1:{position:'right',ticks:{color:'#6BCB77',font:{size:9}},grid:{display:false}}}})});
+  mk('ch-cvr',{type:'line',data:{labels,datasets:[
+    {label:'轉換率%',data:rows.map(r=>r.visits?+(r.orders/r.visits*100).toFixed(1):null),borderColor:'#FFD93D',backgroundColor:'rgba(255,217,61,.12)',fill:true,tension:.3}
+  ]},options:opt()});
+}
+function mk(id,c){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),c);}
+
+// ═══════════════ 健檢引擎 ═══════════════
+function renderAdvice(){
+  const list=$('advlist');
+  if(DB.length<1){$('adv-summary').textContent='先去「今日記錄」存幾天數據,我就會在這裡告訴你今天該做什麼。';list.innerHTML='';return;}
+  const w=agg(lastN(7)),mo=agg(thisMonth());
+  const a=[];
+  const breakeven=tROAS();
+  const today=new Date(),dim=new Date(today.getFullYear(),today.getMonth()+1,0).getDate(),day=today.getDate();
+  const proj=day?Math.round(mo.orders/day*dim):0;
+
+  // 0. 進度總評
+  if(proj>=cfg.goalMin) a.push(['good','🎯 進度超前','本月預估可達 <b>'+proj+' 單</b>,已踩進目標區('+cfg.goalMin+'-'+cfg.goalMax+')!守住廣告效率、把會賣的款加碼擴量即可。']);
+  else a.push(['warn','🎯 進度落後','本月預估 <b>'+proj+' 單</b>,離目標下緣 '+cfg.goalMin+' 還差 '+(cfg.goalMin-proj)+' 單。下面是補單最快的幾招,挑紅色的先做。']);
+
+  // 1. 廣告效率
+  if(w.adspend){
+    if(w.roas&&w.roas<breakeven) a.push(['crit','🔴 廣告在賠錢','近7天 ROAS 只有 <b>'+w.roas.toFixed(1)+'x</b>,你毛利約 '+cfg.margin+'%,損益兩平要 '+breakeven.toFixed(1)+'x。<br>今天做:打開廣告→搜尋字詞報表,把「有花錢、0轉換或轉換差」的關鍵字設為<b>否定關鍵字或降出價</b>;ROAS差的商品<b>直接關廣告</b>,把預算集中到會賣的主力款。']);
+    else if(w.roas&&w.roas>=breakeven*2) a.push(['good','🟢 廣告很賺,可以擴量','ROAS <b>'+w.roas.toFixed(1)+'x</b> 很健康。這是少數可以「加錢」的時刻——把表現最好的關鍵字/商品<b>每天預算+20%</b>觀察3天,單量會跟著上。']);
+    else if(w.roas) a.push(['info','🟡 廣告普通','ROAS <b>'+w.roas.toFixed(1)+'x</b>,還能更好。先別加總預算,而是「重分配」:砍後段、補前段。每週看一次搜尋字詞報表。']);
+    if(w.ctr&&w.ctr<1) a.push(['warn','📉 廣告點擊率偏低','CTR 只有 <b>'+w.ctr.toFixed(2)+'%</b>(<1%)。代表主圖/標題/價格在搜尋結果不夠吸睛。換一張<b>更亮、有重點賣點文字</b>的主圖,標題前段放熱搜關鍵字。']);
+  } else a.push(['info','ℹ️ 缺廣告數據','填上「廣告花費 / 廣告帶來訂單 / 廣告銷售額」,我才能幫你算每單成本和 ROAS、判斷廣告有沒有燒在刀口上。']);
+
+  // 2. 每單成本 vs 毛利
+  if(w.cpo&&w.aov){
+    const maxcpo=w.aov*cfg.margin/100;
+    if(w.cpo>maxcpo) a.push(['crit','💸 每單廣告成本吃掉毛利','每單花 <b>NT$'+fmt(w.cpo)+'</b> 拉一張單,但客單價 '+fmt(w.aov)+' × 毛利'+cfg.margin+'% 只剩 '+fmt(maxcpo)+'。等於每賣一單廣告就賠。<br>解法:① 提高客單價(加購、滿額免運、套組);② 降低每單成本(優化關鍵字);③ 拉自然單佔比稀釋廣告成本。']);
+  }
+
+  // 3. 轉換率
+  if(w.visits){
+    if(w.cvr<2) a.push(['crit','🔴 轉換率太低','<b>'+w.cvr.toFixed(1)+'%</b> 進站轉換(服飾健康約 2-5%)。流量有進來但留不住,加廣告也是浪費。<br>今天做:① 主圖換成<b>真人模特+情境</b>;② 商品頁前3行寫<b>痛點+賣點</b>(材質/版型/尺寸);③ 一定要放<b>尺寸表</b>(服飾退單主因);④ 衝<b>含圖好評</b>。']);
+    else if(w.cvr>=4) a.push(['good','🟢 轉換率很好','<b>'+w.cvr.toFixed(1)+'%</b> 很棒!瓶頸不在頁面而在<b>流量不夠</b>。重點放在「把更多人帶進來」:擴廣告會賣的款 + 開分潤/直播。']);
+    else a.push(['info','🟡 轉換率中等','<b>'+w.cvr.toFixed(1)+'%</b>,有提升空間。挑你<b>流量最大的前3個商品</b>逐一優化主圖、賣點、評價,投報率最高。']);
+  } else a.push(['info','ℹ️ 缺流量數據','填「商品瀏覽數」,我才能算轉換率、判斷你是「流量不夠」還是「進來不下單」——這兩個解法完全相反。']);
+
+  // 4. 自然單 / 免費流量
+  if(w.orders){
+    if(w.natshare<30) a.push(['crit','⚠️ 過度依賴廣告(這就是你卡 200 的主因)','自然單只佔 <b>'+Math.round(w.natshare)+'%</b>。廣告開多少、單就多少,預算一停就掉——這正是 200 單天花板。<br>本週必做開三個免費管道:① <b>蝦皮分潤計畫</b>(賣出才付佣,服飾超吃);② <b>蝦皮直播</b>每週固定排;③ <b>官方活動/限時特賣</b>全部報名。詳見「攻略」分頁。']);
+    else if(w.natshare>=50) a.push(['good','🟢 自然流量健康','自然單佔 <b>'+Math.round(w.natshare)+'%</b>,基礎扎實。可以更放心加碼廣告擴量衝目標。']);
+    else a.push(['info','🟡 自然單可再養','自然單佔 <b>'+Math.round(w.natshare)+'%</b>,持續經營分潤、新品上架、粉絲推播,把這個比例往 50% 推,單量天花板就會打開。']);
+  }
+
+  // 5. 上架 / 粉絲 提醒(每次都給的成長提醒)
+  a.push(['info','🔁 每週固定動作','① 每週上 <b>2-3 個新品</b>(蝦皮給新品流量加成);② 對<b>粉絲推播</b>新品/優惠券;③ 出貨小卡邀<b>5星含圖評價</b>(回饋蝦幣);④ 設<b>免運門檻</b>略高於客單價,自然拉高客單。']);
+
+  $('adv-summary').innerHTML='近7天 <b>'+w.orders+' 單</b> · 廣告花 <b>NT$'+fmt(w.adspend)+'</b> · ROAS <b>'+(w.roas?w.roas.toFixed(1)+'x':'—')+'</b> · 轉換率 <b>'+(w.cvr?w.cvr.toFixed(1)+'%':'—')+'</b> · 自然單佔 <b>'+(w.orders?Math.round(w.natshare)+'%':'—')+'</b>。挑下面 🔴 紅色的先做。';
+  list.innerHTML=a.map(([c,t,b])=>`<div class="adv ${c}"><div class="at">${t}<span class="pill ${c}">${c==='crit'?'立即處理':c==='warn'?'本週':c==='good'?'維持':'參考'}</span></div><div class="ab">${b}</div></div>`).join('');
+}
+
+// ═══════════════ 成長攻略 SOP ═══════════════
+const SOP=[
+ ['🎯 廣告效率(把同樣的錢買到更多單)',[
+   ['每週看「搜尋字詞報表」','把有花錢卻 0 轉換的字設為否定關鍵字,會轉換的字加出價'],
+   ['關掉 ROAS < 損益兩平 的商品廣告','把預算集中到會賣的主力款,別平均撒'],
+   ['主力款用「關鍵字廣告」搶精準流量','新款/測試款用自動廣告(GMV Max)找受眾'],
+   ['每張單成本 ≤ 客單價 × 毛利率','超過就是賠錢賣,先優化再投'],
+   ['表現好的款每次預算 +20% 觀察3天','好就續加,差就退回——小步擴量不暴衝'],
+ ]],
+ ['🔁 轉換率(進來的人更多下單)',[
+   ['主圖用真人模特+情境,加重點文字','服飾的命脈,直接決定點擊和轉換'],
+   ['9張圖+影片補滿,展示細節/上身','降低「看不清楚」的猶豫'],
+   ['商品頁前3行寫痛點+賣點','材質、版型、適合場合,別只貼規格'],
+   ['每個服飾商品都放尺寸表','服飾退單/不下單第一主因'],
+   ['衝含圖5星評價(出貨小卡+蝦幣回饋)','評價數和星等直接影響轉換與排名'],
+   ['設免運門檻略高於客單價','自然推高客單與每單毛利'],
+ ]],
+ ['🚀 免費新流量(不吃廣告預算,破200天花板的關鍵)',[
+   ['開通蝦皮分潤計畫、設好佣金','賣出才付佣,招募網紅/聯盟帶貨,服飾超有效'],
+   ['每週固定排蝦皮直播','服飾轉換最高管道之一,固定時段養觀眾'],
+   ['報名所有官方活動 & 限時特賣','9.9/雙11/商城活動有曝光紅利,商城賣家優先'],
+   ['每週上2-3個新品','蝦皮給新品流量加成,持續上架=持續曝光'],
+   ['對粉絲推播新品與優惠券','免費觸及已關注你的人,回購成本最低'],
+   ['設定關注禮/會員回購券','把一次客變回頭客,墊高自然單'],
+ ]],
+ ['📊 每日 / 每週節奏',[
+   ['每天:填當日數字 → 看健檢 → 做紅色項','30秒輸入,換來明確當天動作'],
+   ['每週一:看搜尋字詞報表、調廣告','把預算重新分配到會賣的地方'],
+   ['每週:上新品、排一場直播、推播粉絲',''],
+   ['每月初:檢視上月單量 vs 目標、定本月主推款',''],
+ ]],
+];
+let CK=JSON.parse(localStorage.getItem(CKEY)||'{}');
+function renderSOP(){
+  $('sopbox').innerHTML=SOP.map((sec,si)=>`<h3>${sec[0]}</h3>`+sec[1].map((it,ii)=>{
+    const id=si+'-'+ii,done=CK[id]?'done':'';
+    return `<div class="ck ${done}" onclick="toggleCk('${id}')"><div class="box">✓</div><div class="tx">${it[0]}${it[1]?'<small>'+it[1]+'</small>':''}</div></div>`;
+  }).join('')).join('');
+}
+function toggleCk(id){CK[id]=!CK[id];localStorage.setItem(CKEY,JSON.stringify(CK));renderSOP();}
+
+// ═══════════════ 匯出 ═══════════════
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download='shopee-coach-'+todayStr()+'.json';a.click();URL.revokeObjectURL(u);
+  toast('已下載備份檔');
+}
+
+// ═══════════════ init ═══════════════
+$('i-date').value=todayStr();
+renderLog();renderSOP();
+</script>
+</body>
+</html>
